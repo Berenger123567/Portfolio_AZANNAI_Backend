@@ -212,9 +212,18 @@ export function ProfileEditor() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const data = await adminRequest<{
-        file: { url: string; publicId: string };
-      }>("/api/admin/uploads/avatar", { form: formData });
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+      const uploadUrl = apiBase ? `${apiBase}/api/admin/uploads/avatar` : "/api/admin/uploads/avatar";
+      const res = await fetch(uploadUrl, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(err.error ?? "Échec de l'envoi de la photo.");
+      }
+      const data = (await res.json()) as { file: { url: string; publicId: string } };
 
       setForm((current) =>
         current

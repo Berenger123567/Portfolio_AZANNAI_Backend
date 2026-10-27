@@ -36,11 +36,14 @@ export async function adminRequest<T>(
     body = JSON.stringify(options.body);
   }
 
-  const response = await fetch(path, {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const requestUrl = path.startsWith("http") ? path : apiBase ? `${apiBase}${path}` : path;
+
+  const response = await fetch(requestUrl, {
     method: options.method ?? (body ? "POST" : "GET"),
     headers,
     body,
-    credentials: "same-origin",
+    credentials: "include",
     cache: "no-store",
   });
 
