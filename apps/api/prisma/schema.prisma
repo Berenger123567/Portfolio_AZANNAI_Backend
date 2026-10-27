@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Profile {
+  id          Int      @id @default(1)
+  fullName    String
+  firstName   String
+  lastName    String
+  role        String
+  location    String
+  school      String
+  degree      String
+  objective   String
+  email       String
+  phone       String
+  linkedin    String   @default("")
+  github      String   @default("")
+  facebook    String   @default("")
+  intro       String
+  statement   String
+  method      String
+  vision      String
+  cvUrl       String?
+  cvPublicId  String?
+  avatarUrl   String?
+  avatarPublicId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Education {
+  id        String   @id @default(uuid())
+  year      String
+  degree    String
+  school    String
+  detail    String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Experience {
+  id        String   @id @default(uuid())
+  company   String
+  period    String
+  focus     String
+  missions  String[]
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Training {
+  id        String   @id @default(uuid())
+  title     String
+  provider  String
+  detail    String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Skill {
+  id        String   @id @default(uuid())
+  name      String
+  category  String
+  level     String
+  ticks     Int      @default(3)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id          String         @id @default(uuid())
+  slug        String         @unique
+  plate       String
+  title       String
+  category    String
+  period      String
+  summary     String
+  description String[]
+  scope       String[]
+  role        String
+  tools       String[]
+  published   Boolean        @default(true)
+  sortOrder   Int            @default(0)
+  media       ProjectMedia[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ProjectMedia {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  kind        String   @default("drawing")
+  drawingKind String?
+  url         String?
+  publicId    String?
+  mimeType    String?
+  code        String
+  caption     String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([projectId, code])
+  @@index([projectId, sortOrder])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
