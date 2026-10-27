@@ -50,22 +50,26 @@ export function verifyAdminToken(token: string): AdminSession {
   };
 }
 
-const cookieOptions = {
-  httpOnly: true,
-  sameSite: "lax" as const,
-  secure: env.isProduction,
-  path: "/",
-};
+function getCookieOptions() {
+  const isProd = env.isProduction;
+
+  return {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? ("none" as const) : ("lax" as const),
+    path: "/",
+  };
+}
 
 export function setAdminCookie(res: Response, token: string) {
   res.cookie(COOKIE_NAME, token, {
-    ...cookieOptions,
+    ...getCookieOptions(),
     maxAge: COOKIE_MAX_AGE,
   });
 }
 
 export function clearAdminCookie(res: Response) {
-  res.clearCookie(COOKIE_NAME, cookieOptions);
+  res.clearCookie(COOKIE_NAME, getCookieOptions());
 }
 
 export function requireAdmin(
