@@ -11,10 +11,6 @@ if (isProduction && !process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET est requis en production.");
 }
 
-if (isProduction && !process.env.ADMIN_EMAIL) {
-  throw new Error("ADMIN_EMAIL est requis en production.");
-}
-
 const webOrigins = (process.env.WEB_ORIGIN ?? "http://localhost:3000")
   .split(",")
   .map((origin) => origin.trim())

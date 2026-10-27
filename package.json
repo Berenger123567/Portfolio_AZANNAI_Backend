@@ -1,0 +1,28 @@
+{
+  "name": "azanai-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n web,api -c blue,magenta \"npm run dev:web\" \"npm run dev:api\"",
+    "dev:web": "npm run dev --workspace @azanai/web",
+    "dev:api": "npm run dev --workspace @azanai/api",
+    "build": "npm run build:api && npm run build:web",
+    "build:web": "npm run build --workspace @azanai/web",
+    "build:api": "npm run build --workspace @azanai/api",
+    "start": "npm run start --workspace @azanai/web",
+    "typecheck": "npm run typecheck --workspace @azanai/web && npm run typecheck --workspace @azanai/api",
+    "lint": "npm run lint --workspace @azanai/web",
+    "db:generate": "npm run db:generate --workspace @azanai/api",
+    "db:migrate": "npm run db:migrate --workspace @azanai/api",
+    "db:deploy": "npm run db:deploy --workspace @azanai/api",
+    "db:seed": "npm run db:seed --workspace @azanai/api",
+    "db:studio": "npm run db:studio --workspace @azanai/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
