@@ -88,13 +88,28 @@ export const projectSchema = z.object({
   tools: textList,
   published: z.boolean().default(true),
   sortOrder,
+  coverMediaId: z.string().trim().max(191).nullable().optional(),
+  introLine1: z.string().trim().max(200).nullable().optional(),
+  introLine2: z.string().trim().max(200).nullable().optional(),
+  technicalSheetTitle: z.string().trim().max(200).nullable().optional(),
+  technicalSheetSubtitle: z.string().trim().max(200).nullable().optional(),
+  technicalProject: z.string().trim().max(500).nullable().optional(),
+  technicalPlateRef: z.string().trim().max(200).nullable().optional(),
+  technicalScale: z.string().trim().max(200).nullable().optional(),
+  technicalDiscipline: z.string().trim().max(200).nullable().optional(),
+  technicalNorm: z.string().trim().max(500).nullable().optional(),
+  technicalMaterials: z.string().trim().max(500).nullable().optional(),
+  technicalEstablishment: z.string().trim().max(200).nullable().optional(),
+  intentNoteTitle: z.string().trim().max(200).nullable().optional(),
+  intentNote: z.string().trim().max(2000).nullable().optional(),
+  conformText: z.string().trim().max(200).nullable().optional(),
 });
 
 const drawingKind = z.enum(["plan", "elevation", "section"]);
 
 export const mediaCreateSchema = z
   .object({
-    kind: z.enum(["drawing", "image", "pdf"]),
+    kind: z.enum(["drawing", "image", "pdf", "model"]),
     drawingKind: drawingKind.nullable().optional(),
     url: z.string().trim().max(2048).nullable().optional(),
     publicId: z.string().trim().max(2048).nullable().optional(),

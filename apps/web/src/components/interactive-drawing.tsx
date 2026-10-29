@@ -218,5 +218,80 @@ export function InteractiveMediaFrame({
     );
   }
 
+  if (media.kind === "model" && media.url) {
+    return (
+      <figure className={`drawing drawing--interactive ${className}`}>
+        <div className="drawing__bar">
+          <span>{drawingTitle ?? media.code}</span>
+          <div className="drawing__bar-right">
+            <span>{meta ?? "Modèle 3D"}</span>
+            <a
+              className="drawing__inspect-tag"
+              href={media.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ouvrir / Télécharger
+            </a>
+          </div>
+        </div>
+        <div className="drawing__canvas drawing__canvas--media">
+          <model-viewer
+            src={media.url}
+            alt={media.caption}
+            camera-controls
+            auto-rotate
+            shadow-intensity="1"
+            style={{ width: "100%", height: "100%", background: "transparent" }}
+          />
+        </div>
+        <figcaption className="drawing__caption">
+          <span>{media.code}</span>
+          <span>{media.caption}</span>
+        </figcaption>
+      </figure>
+    );
+  }
+
+  if (media.kind === "pdf" && media.url) {
+    return (
+      <figure className={`drawing drawing--interactive ${className}`}>
+        <div className="drawing__bar">
+          <span>{drawingTitle ?? media.code}</span>
+          <div className="drawing__bar-right">
+            <span>{meta ?? "Document"}</span>
+            <a
+              className="drawing__inspect-tag"
+              href={media.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+            >
+              Télécharger le PDF
+            </a>
+          </div>
+        </div>
+        <div className="drawing__canvas drawing__canvas--media">
+          <object
+            data={media.url}
+            type="application/pdf"
+            style={{ width: "100%", height: "100%" }}
+          >
+            <div style={{ padding: "2rem", textAlign: "center" }}>
+              <p>Impossible d'afficher le PDF dans ce navigateur.</p>
+              <a href={media.url} target="_blank" rel="noopener noreferrer">
+                Télécharger {media.code}
+              </a>
+            </div>
+          </object>
+        </div>
+        <figcaption className="drawing__caption">
+          <span>{media.code}</span>
+          <span>{media.caption}</span>
+        </figcaption>
+      </figure>
+    );
+  }
+
   return null;
 }

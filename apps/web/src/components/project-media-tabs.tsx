@@ -17,7 +17,8 @@ type GlyphKind =
   | "render"
   | "site"
   | "pdf"
-  | "document";
+  | "document"
+  | "model";
 
 function MediaGlyph({ kind }: { kind: GlyphKind }) {
   if (kind === "plan") {
@@ -74,6 +75,16 @@ function MediaGlyph({ kind }: { kind: GlyphKind }) {
     );
   }
 
+  if (kind === "model") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z" />
+        <path d="m4 7.5 8 4.5 8-4.5M12 12v9" />
+        <circle cx="12" cy="12" r="1" />
+      </svg>
+    );
+  }
+
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <rect x="4" y="3" width="16" height="18" />
@@ -86,6 +97,10 @@ function describeMedia(item: ProjectMedia): {
   label: string;
   glyph: GlyphKind;
 } {
+  if (item.kind === "model") {
+    return { label: "Modèle 3D", glyph: "model" };
+  }
+
   if (item.kind === "image") {
     const isRender = /r3d|rendu|3d/i.test(`${item.code} ${item.caption}`);
     return isRender

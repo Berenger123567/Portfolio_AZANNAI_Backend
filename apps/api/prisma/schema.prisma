@@ -101,6 +101,21 @@ model Project {
   published   Boolean        @default(true)
   sortOrder   Int            @default(0)
   media       ProjectMedia[]
+  coverMediaId String?
+  introLine1  String?
+  introLine2  String?
+  technicalSheetTitle String?
+  technicalSheetSubtitle String?
+  technicalProject String?
+  technicalPlateRef String?
+  technicalScale String?
+  technicalDiscipline String?
+  technicalNorm String?
+  technicalMaterials String?
+  technicalEstablishment String?
+  intentNoteTitle String?
+  intentNote String?
+  conformText String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 }

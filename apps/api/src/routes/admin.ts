@@ -457,9 +457,21 @@ adminRouter.put(
       throw new HttpError(400, "Fichier requis.");
     }
 
-    const allowed = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
-    if (!allowed.has(req.file.mimetype)) {
-      throw new HttpError(400, "Format de fichier non autorisé.");
+    const allowed = new Set([
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "application/pdf",
+      "model/gltf-binary",
+      "model/gltf+json",
+      "application/octet-stream",
+      "model/obj",
+    ]);
+    const ext = req.file.originalname.toLowerCase();
+    const allowedExt = [".glb", ".gltf", ".obj", ".jpg", ".jpeg", ".png", ".webp", ".pdf"];
+    const extOk = allowedExt.some((e) => ext.endsWith(e));
+    if (!allowed.has(req.file.mimetype) && !extOk) {
+      throw new HttpError(400, "Format de fichier non autoris�.");
     }
 
     const current = await prisma.projectMedia.findFirst({

@@ -996,20 +996,20 @@ export function ProjectEditor({ projectId }: { projectId: string }) {
 
               <form className="admin-media__form" onSubmit={uploadFile}>
                 <h3 className="admin-card__title">Téléverser un fichier</h3>
-                <p className="admin-hint">
-                  JPEG, PNG, WebP ou PDF — 15 Mo maximum.
-                </p>
-                <div className="admin-form__grid">
-                  <label className="admin-field admin-field--full">
-                    <span className="admin-field__label">Fichier</span>
-                    <input
-                      className="admin-input"
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,application/pdf"
-                      ref={fileInputRef}
-                      required
-                    />
-                  </label>
+                  <p className="admin-hint">
+                    JPEG, PNG, WebP, PDF, GLB, glTF, OBJ �?" 15 Mo maximum.
+                  </p>
+                  <div className="admin-form__grid">
+                    <label className="admin-field admin-field--full">
+                      <span className="admin-field__label">Fichier</span>
+                      <input
+                        className="admin-input"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,application/pdf,.glb,.gltf,.obj,model/gltf-binary,model/gltf+json"
+                        ref={fileInputRef}
+                        required
+                      />
+                    </label>
                   <label className="admin-field">
                     <span className="admin-field__label">Code</span>
                     <input

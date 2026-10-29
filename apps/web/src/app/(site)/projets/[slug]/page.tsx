@@ -128,15 +128,19 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           </span>
           <p className="project-section__label">Intention</p>
           <h2 className="project-section__title" id="intention-titre">
-            Ce que le projet met en place.
+            {project.intentNoteTitle || "Note d’intention"}
           </h2>
         </div>
 
         <div className="project-section__body">
           <div className="project-prose">
-            {project.description.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+            {project.intentNote ? (
+              <p>{project.intentNote}</p>
+            ) : (
+              project.description.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))
+            )}
           </div>
 
           <div className="project-scope">

@@ -22,6 +22,10 @@ const allowedMimeTypes = new Set([
   "image/png",
   "image/webp",
   "application/pdf",
+  "model/gltf-binary",
+  "model/gltf+json",
+  "application/octet-stream",
+  "model/obj",
 ]);
 
 export const upload = multer({
@@ -43,16 +47,23 @@ export type UploadedFile = {
   url: string;
   publicId: string;
   mimeType: string;
-  kind: "image" | "pdf";
+  kind: "image" | "pdf" | "model";
 };
 
 function safeExtension(file: UploadFile) {
   const extension = path.extname(file.originalname).toLowerCase();
-  if (extension && extension.length <= 8) {
+  if (extension && [".glb", ".gltf", ".obj", ".pdf"].includes(extension)) {
+    return extension;
+  }
+  if (extension && extension.length <= 8 && ![".exe", ".sh", ".bat"].includes(extension)) {
     return extension;
   }
 
-  return file.mimetype === "application/pdf" ? ".pdf" : ".jpg";
+  if (file.mimetype === "application/pdf") return ".pdf";
+  if (file.mimetype === "model/gltf-binary") return ".glb";
+  if (file.mimetype === "model/gltf+json") return ".gltf";
+  if (file.mimetype === "model/obj") return ".obj";
+  return ".jpg";
 }
 
 async function uploadToCloudinary(
@@ -81,11 +92,15 @@ async function uploadToCloudinary(
     stream.end(file.buffer);
   });
 
+  const ext = path.extname(file.originalname).toLowerCase();
+  let kind: "image" | "pdf" | "model" = "image";
+  if (file.mimetype === "application/pdf") kind = "pdf";
+  else if (file.mimetype.startsWith("model/") || ext === ".glb" || ext === ".gltf" || ext === ".obj") kind = "model";
   return {
     url: result.secure_url,
     publicId: result.public_id,
     mimeType: file.mimetype,
-    kind: file.mimetype === "application/pdf" ? "pdf" : "image",
+    kind,
   };
 }
 
@@ -106,11 +121,15 @@ function uploadToLocal(file: UploadFile, folder: string): UploadedFile {
     filename.replaceAll(path.sep, "/"),
   );
 
+  const ext = path.extname(file.originalname).toLowerCase();
+  let kind: "image" | "pdf" | "model" = "image";
+  if (file.mimetype === "application/pdf") kind = "pdf";
+  else if (file.mimetype.startsWith("model/") || ext === ".glb" || ext === ".gltf" || ext === ".obj") kind = "model";
   return {
     url: `/uploads/${relativePath}`,
     publicId: `local:${relativePath}`,
     mimeType: file.mimetype,
-    kind: file.mimetype === "application/pdf" ? "pdf" : "image",
+    kind,
   };
 }
 

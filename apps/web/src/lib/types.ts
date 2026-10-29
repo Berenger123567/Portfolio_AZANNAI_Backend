@@ -1,6 +1,6 @@
 export type DrawingKind = "plan" | "elevation" | "section";
 
-export type MediaKind = "drawing" | "image" | "pdf";
+export type MediaKind = "drawing" | "image" | "pdf" | "model";
 
 export type Profile = {
   id: number;
@@ -92,6 +92,21 @@ export type Project = {
   published: boolean;
   sortOrder: number;
   media: ProjectMedia[];
+  coverMediaId: string | null;
+  introLine1: string | null;
+  introLine2: string | null;
+  technicalSheetTitle: string | null;
+  technicalSheetSubtitle: string | null;
+  technicalProject: string | null;
+  technicalPlateRef: string | null;
+  technicalScale: string | null;
+  technicalDiscipline: string | null;
+  technicalNorm: string | null;
+  technicalMaterials: string | null;
+  technicalEstablishment: string | null;
+  intentNoteTitle: string | null;
+  intentNote: string | null;
+  conformText: string | null;
   createdAt: string;
   updatedAt: string;
 };

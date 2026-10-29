@@ -172,12 +172,11 @@ export default async function HomePage() {
           <div>
             <p className="section__label">Registre terrain</p>
             <h2 className="gallery-strip__title" id="terrain-titre">
-              Le chantier comme seconde école.
+              {(profile as any).introLine2 || "Le chantier comme seconde école."}
             </h2>
           </div>
           <p className="gallery-strip__note">
-            Trois arrêts, trois échelles : l’ouvrage en cours, la structure qui
-            se prépare, le projet qui prend forme.
+            {(profile as any).introLine1 || "Trois arrêts, trois échelles : l'ouvrage en cours, la structure qui se prépare, le projet qui prend forme."}
           </p>
         </div>
 
@@ -219,17 +218,20 @@ export default async function HomePage() {
               Trois études, trois échelles.
             </h2>
             <p className="section__intro">
-              De la maison individuelle au dimensionnement d’un bloc
+              De la maison individuelle au dimensionnement d'un bloc
               pédagogique, chaque projet est présenté comme une planche :
-              intention, plans, coupes et documents d’exécution.
+              intention, plans, coupes et documents d'exécution.
             </p>
             <p className="section__count">{projectCount} planches</p>
           </div>
 
           <div className="section__body">
-            <div className="project-register">
-              {projects.map((project, index) => {
-                const cover = project.media[0] ?? null;
+            <div className="project-register" data-projects>
+              {projects.slice(0, 3).map((project, index) => {
+                const coverMedia = project.coverMediaId
+                  ? project.media.find((item) => item.id === project.coverMediaId)
+                  : project.media.find((item) => item.kind === "image") ?? project.media[0] ?? null;
+                const cover = coverMedia;
                 const isReversed = index % 2 === 1;
 
                 return (
@@ -245,7 +247,17 @@ export default async function HomePage() {
                       <span className="project-row__plate">
                         {project.plate}
                       </span>
-                      <MediaPreview media={cover} />
+                      {cover?.kind === "pdf" ? (
+                        <div className="project-row__pdf">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6 3h8l4 4v14H6z" />
+                            <path d="M14 3v5h5M9 13h6M9 17h4" />
+                          </svg>
+                          <span>{cover.code}</span>
+                        </div>
+                      ) : (
+                        <MediaPreview media={cover} />
+                      )}
                     </div>
 
                     <div className="project-row__content">
@@ -279,6 +291,44 @@ export default async function HomePage() {
                 );
               })}
             </div>
+            {projects.length > 3 && (
+              <div className="project-more">
+                <button
+                  className="button"
+                  type="button"
+                  data-projects-toggle
+                  data-expanded="false"
+                >
+                  Voir plus
+                </button>
+              </div>
+            )}
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                (function(){
+                  var btn = document.querySelector('[data-projects-toggle]');
+                  var list = document.querySelector('[data-projects]');
+                  if(!btn || !list) return;
+                  var items = Array.from(list.querySelectorAll('.project-row'));
+                  if(items.length <= 3) { btn.style.display='none'; return; }
+                  for(var i=3;i<items.length;i++){ items[i].style.display='none'; }
+                  btn.addEventListener('click', function(){
+                    var expanded = btn.getAttribute('data-expanded') === 'true';
+                    if(expanded){
+                      for(var i=3;i<items.length;i++){ items[i].style.display='none'; }
+                      btn.setAttribute('data-expanded','false');
+                      btn.textContent='Voir plus';
+                    }else{
+                      for(var i=3;i<items.length;i++){ items[i].style.display='flex'; }
+                      btn.setAttribute('data-expanded','true');
+                      btn.textContent='Voir moins';
+                    }
+                  });
+                })();
+              `,
+              }}
+            />
           </div>
         </div>
       </section>
