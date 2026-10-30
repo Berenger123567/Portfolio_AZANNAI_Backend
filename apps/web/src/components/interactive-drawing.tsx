@@ -227,7 +227,7 @@ export function InteractiveMediaFrame({
             <span>{meta ?? "Modèle 3D"}</span>
             <a
               className="drawing__inspect-tag"
-              href={media.url}
+              href={media.url ?? "#"}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -236,8 +236,9 @@ export function InteractiveMediaFrame({
           </div>
         </div>
         <div className="drawing__canvas drawing__canvas--media">
+          {/* @ts-ignore */}
           <model-viewer
-            src={media.url}
+            src={media.url ?? ""}
             alt={media.caption}
             camera-controls
             auto-rotate
