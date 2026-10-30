@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const shortVision =
   "Concevoir des projets innovants, durables et fonctionnels, au service du cadre de vie.";
 
-const fieldNotes = [
+const defaultFieldNotes = [
   {
     src: "/media/chantier-hotel-cube.jpg",
     alt: "Suivi de chantier d’un complexe hôtelier cinq étoiles — C.U.B.E.",
@@ -46,6 +46,33 @@ export default async function HomePage() {
   const phoneHref = profile.phone.replace(/[^\d+]/g, "");
   const projectCount = projects.length.toString().padStart(2, "0");
   const experienceCount = experiences.length.toString().padStart(2, "0");
+
+  const fieldNotes = [
+    {
+      src: (profile as any).fieldNote1Src || defaultFieldNotes[0].src,
+      alt: (profile as any).fieldNote1Alt || defaultFieldNotes[0].alt,
+      index: (profile as any).fieldNote1Index || defaultFieldNotes[0].index,
+      meta: (profile as any).fieldNote1Meta || defaultFieldNotes[0].meta,
+      caption: (profile as any).fieldNote1Caption || defaultFieldNotes[0].caption,
+      className: (profile as any).fieldNote1Class || defaultFieldNotes[0].className,
+    },
+    {
+      src: (profile as any).fieldNote2Src || defaultFieldNotes[1].src,
+      alt: (profile as any).fieldNote2Alt || defaultFieldNotes[1].alt,
+      index: (profile as any).fieldNote2Index || defaultFieldNotes[1].index,
+      meta: (profile as any).fieldNote2Meta || defaultFieldNotes[1].meta,
+      caption: (profile as any).fieldNote2Caption || defaultFieldNotes[1].caption,
+      className: (profile as any).fieldNote2Class || defaultFieldNotes[1].className,
+    },
+    {
+      src: (profile as any).fieldNote3Src || defaultFieldNotes[2].src,
+      alt: (profile as any).fieldNote3Alt || defaultFieldNotes[2].alt,
+      index: (profile as any).fieldNote3Index || defaultFieldNotes[2].index,
+      meta: (profile as any).fieldNote3Meta || defaultFieldNotes[2].meta,
+      caption: (profile as any).fieldNote3Caption || defaultFieldNotes[2].caption,
+      className: (profile as any).fieldNote3Class || defaultFieldNotes[2].className,
+    },
+  ];
 
   return (
     <>
@@ -98,13 +125,12 @@ export default async function HomePage() {
 
         <div className="shell hero__fold">
           <aside className="hero__fold-aside">
-            <p className="hero__fold-index">PL-00 / Axonométrie</p>
+            <p className="hero__fold-index">{(profile as any).heroIndex || "PL-00 / Axonométrie"}</p>
             <p className="hero__fold-copy">
-              La structure comme point de départ : une trame, des portées, des
-              appuis. Le reste vient s’y accrocher.
+              {(profile as any).heroCopy || "La structure comme point de départ : une trame, des portées, des appuis. Le reste vient s’y accrocher."}
             </p>
             <a className="hero__fold-link" href="#profil">
-              Lire la note d’intention <span aria-hidden="true">↓</span>
+              {(profile as any).heroLinkText || "Lire la note d’intention"} <span aria-hidden="true">↓</span>
             </a>
           </aside>
           <div className="hero__drawing">
@@ -170,13 +196,13 @@ export default async function HomePage() {
       >
         <div className="shell gallery-strip__head">
           <div>
-            <p className="section__label">Registre terrain</p>
+            <p className="section__label">{(profile as any).registerLabel || "Registre terrain"}</p>
             <h2 className="gallery-strip__title" id="terrain-titre">
-              {(profile as any).introLine2 || "Le chantier comme seconde école."}
+              {(profile as any).registerTitle || (profile as any).introLine2 || "Le chantier comme seconde école."}
             </h2>
           </div>
           <p className="gallery-strip__note">
-            {(profile as any).introLine1 || "Trois arrêts, trois échelles : l'ouvrage en cours, la structure qui se prépare, le projet qui prend forme."}
+            {(profile as any).registerNote || (profile as any).introLine1 || "Trois arrêts, trois échelles : l'ouvrage en cours, la structure qui se prépare, le projet qui prend forme."}
           </p>
         </div>
 
@@ -213,14 +239,12 @@ export default async function HomePage() {
             <span className="section__number" aria-hidden="true">
               01
             </span>
-            <p className="section__label">Projets / planches</p>
+            <p className="section__label">{(profile as any).projectsLabel || "Projets / planches"}</p>
             <h2 className="section__title" id="projets-titre">
-              Trois études, trois échelles.
+              {(profile as any).projectsTitle || "Dossier de projets"}
             </h2>
             <p className="section__intro">
-              De la maison individuelle au dimensionnement d'un bloc
-              pédagogique, chaque projet est présenté comme une planche :
-              intention, plans, coupes et documents d'exécution.
+              {(profile as any).projectsIntro || "Chaque projet est présenté comme une planche : intention, plans, coupes et documents d'exécution."}
             </p>
             <p className="section__count">{projectCount} planches</p>
           </div>

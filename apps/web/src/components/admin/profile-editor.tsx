@@ -28,6 +28,33 @@ type ProfileForm = Pick<
   | "cvPublicId"
   | "avatarUrl"
   | "avatarPublicId"
+  | "heroIndex"
+  | "heroCopy"
+  | "heroLinkText"
+  | "projectsLabel"
+  | "projectsTitle"
+  | "projectsIntro"
+  | "registerLabel"
+  | "registerTitle"
+  | "registerNote"
+  | "fieldNote1Src"
+  | "fieldNote1Alt"
+  | "fieldNote1Index"
+  | "fieldNote1Meta"
+  | "fieldNote1Caption"
+  | "fieldNote1Class"
+  | "fieldNote2Src"
+  | "fieldNote2Alt"
+  | "fieldNote2Index"
+  | "fieldNote2Meta"
+  | "fieldNote2Caption"
+  | "fieldNote2Class"
+  | "fieldNote3Src"
+  | "fieldNote3Alt"
+  | "fieldNote3Index"
+  | "fieldNote3Meta"
+  | "fieldNote3Caption"
+  | "fieldNote3Class"
 >;
 
 const editableFields: (keyof ProfileForm)[] = [
@@ -48,6 +75,33 @@ const editableFields: (keyof ProfileForm)[] = [
   "intro",
   "method",
   "vision",
+  "heroIndex",
+  "heroCopy",
+  "heroLinkText",
+  "projectsLabel",
+  "projectsTitle",
+  "projectsIntro",
+  "registerLabel",
+  "registerTitle",
+  "registerNote",
+  "fieldNote1Src",
+  "fieldNote1Alt",
+  "fieldNote1Index",
+  "fieldNote1Meta",
+  "fieldNote1Caption",
+  "fieldNote1Class",
+  "fieldNote2Src",
+  "fieldNote2Alt",
+  "fieldNote2Index",
+  "fieldNote2Meta",
+  "fieldNote2Caption",
+  "fieldNote2Class",
+  "fieldNote3Src",
+  "fieldNote3Alt",
+  "fieldNote3Index",
+  "fieldNote3Meta",
+  "fieldNote3Caption",
+  "fieldNote3Class",
 ];
 
 function toForm(profile: Profile): ProfileForm {
@@ -61,6 +115,33 @@ function toForm(profile: Profile): ProfileForm {
   form.cvPublicId = profile.cvPublicId;
   form.avatarUrl = profile.avatarUrl ?? null;
   form.avatarPublicId = profile.avatarPublicId ?? null;
+  form.heroIndex = profile.heroIndex ?? "";
+  form.heroCopy = profile.heroCopy ?? "";
+  form.heroLinkText = profile.heroLinkText ?? "";
+  form.projectsLabel = profile.projectsLabel ?? "";
+  form.projectsTitle = profile.projectsTitle ?? "";
+  form.projectsIntro = profile.projectsIntro ?? "";
+  form.registerLabel = profile.registerLabel ?? "";
+  form.registerTitle = profile.registerTitle ?? "";
+  form.registerNote = profile.registerNote ?? "";
+  form.fieldNote1Src = profile.fieldNote1Src ?? "";
+  form.fieldNote1Alt = profile.fieldNote1Alt ?? "";
+  form.fieldNote1Index = profile.fieldNote1Index ?? "";
+  form.fieldNote1Meta = profile.fieldNote1Meta ?? "";
+  form.fieldNote1Caption = profile.fieldNote1Caption ?? "";
+  form.fieldNote1Class = profile.fieldNote1Class ?? "";
+  form.fieldNote2Src = profile.fieldNote2Src ?? "";
+  form.fieldNote2Alt = profile.fieldNote2Alt ?? "";
+  form.fieldNote2Index = profile.fieldNote2Index ?? "";
+  form.fieldNote2Meta = profile.fieldNote2Meta ?? "";
+  form.fieldNote2Caption = profile.fieldNote2Caption ?? "";
+  form.fieldNote2Class = profile.fieldNote2Class ?? "";
+  form.fieldNote3Src = profile.fieldNote3Src ?? "";
+  form.fieldNote3Alt = profile.fieldNote3Alt ?? "";
+  form.fieldNote3Index = profile.fieldNote3Index ?? "";
+  form.fieldNote3Meta = profile.fieldNote3Meta ?? "";
+  form.fieldNote3Caption = profile.fieldNote3Caption ?? "";
+  form.fieldNote3Class = profile.fieldNote3Class ?? "";
   return form;
 }
 
@@ -482,6 +563,99 @@ export function ProfileEditor() {
               required
             />
           </label>
+        </div>
+
+        <div className="admin-card">
+          <div className="admin-card__head">
+            <h3 className="admin-card__title">Accueil - Hero</h3>
+          </div>
+          <div className="admin-card__body admin-form">
+            <div className="admin-form__grid">
+              <label className="admin-field">
+                <span className="admin-field__label">PL-00 / Axonométrie</span>
+                <input className="admin-input" value={form.heroIndex ?? ""} onChange={(e) => update("heroIndex", e.target.value)} />
+              </label>
+              <label className="admin-field">
+                <span className="admin-field__label">Texte du lien</span>
+                <input className="admin-input" value={form.heroLinkText ?? ""} onChange={(e) => update("heroLinkText", e.target.value)} />
+              </label>
+              <label className="admin-field admin-field--full">
+                <span className="admin-field__label">Texte sous l'axonométrie</span>
+                <textarea className="admin-textarea" rows={3} value={form.heroCopy ?? ""} onChange={(e) => update("heroCopy", e.target.value)} />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-card">
+          <div className="admin-card__head">
+            <h3 className="admin-card__title">Accueil - Projets / Planches</h3>
+          </div>
+          <div className="admin-card__body admin-form">
+            <div className="admin-form__grid">
+              <label className="admin-field">
+                <span className="admin-field__label">Label</span>
+                <input className="admin-input" value={form.projectsLabel ?? ""} onChange={(e) => update("projectsLabel", e.target.value)} />
+              </label>
+              <label className="admin-field">
+                <span className="admin-field__label">Titre</span>
+                <input className="admin-input" value={form.projectsTitle ?? ""} onChange={(e) => update("projectsTitle", e.target.value)} placeholder="Dossier de projets" />
+              </label>
+              <label className="admin-field admin-field--full">
+                <span className="admin-field__label">Intro</span>
+                <textarea className="admin-textarea" rows={3} value={form.projectsIntro ?? ""} onChange={(e) => update("projectsIntro", e.target.value)} />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-card">
+          <div className="admin-card__head">
+            <h3 className="admin-card__title">Accueil - Registre terrain</h3>
+          </div>
+          <div className="admin-card__body admin-form">
+            <div className="admin-form__grid">
+              <label className="admin-field">
+                <span className="admin-field__label">Label</span>
+                <input className="admin-input" value={form.registerLabel ?? ""} onChange={(e) => update("registerLabel", e.target.value)} />
+              </label>
+              <label className="admin-field">
+                <span className="admin-field__label">Titre</span>
+                <input className="admin-input" value={form.registerTitle ?? ""} onChange={(e) => update("registerTitle", e.target.value)} />
+              </label>
+              <label className="admin-field admin-field--full">
+                <span className="admin-field__label">Note</span>
+                <textarea className="admin-textarea" rows={3} value={form.registerNote ?? ""} onChange={(e) => update("registerNote", e.target.value)} />
+              </label>
+            </div>
+            <h4 style={{ marginTop: "1rem" }}>Photo 1</h4>
+            <div className="admin-form__grid">
+              <label className="admin-field"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote1Src ?? ""} onChange={(e) => update("fieldNote1Src", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={form.fieldNote1Alt ?? ""} onChange={(e) => update("fieldNote1Alt", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={form.fieldNote1Index ?? ""} onChange={(e) => update("fieldNote1Index", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={form.fieldNote1Meta ?? ""} onChange={(e) => update("fieldNote1Meta", e.target.value)} /></label>
+              <label className="admin-field admin-field--full"><span className="admin-field__label">Légende</span><input className="admin-input" value={form.fieldNote1Caption ?? ""} onChange={(e) => update("fieldNote1Caption", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Classe</span><input className="admin-input" value={form.fieldNote1Class ?? ""} onChange={(e) => update("fieldNote1Class", e.target.value)} placeholder="wide/medium/small" /></label>
+            </div>
+            <h4 style={{ marginTop: "1rem" }}>Photo 2</h4>
+            <div className="admin-form__grid">
+              <label className="admin-field"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote2Src ?? ""} onChange={(e) => update("fieldNote2Src", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={form.fieldNote2Alt ?? ""} onChange={(e) => update("fieldNote2Alt", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={form.fieldNote2Index ?? ""} onChange={(e) => update("fieldNote2Index", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={form.fieldNote2Meta ?? ""} onChange={(e) => update("fieldNote2Meta", e.target.value)} /></label>
+              <label className="admin-field admin-field--full"><span className="admin-field__label">Légende</span><input className="admin-input" value={form.fieldNote2Caption ?? ""} onChange={(e) => update("fieldNote2Caption", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Classe</span><input className="admin-input" value={form.fieldNote2Class ?? ""} onChange={(e) => update("fieldNote2Class", e.target.value)} placeholder="wide/medium/small" /></label>
+            </div>
+            <h4 style={{ marginTop: "1rem" }}>Photo 3</h4>
+            <div className="admin-form__grid">
+              <label className="admin-field"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote3Src ?? ""} onChange={(e) => update("fieldNote3Src", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={form.fieldNote3Alt ?? ""} onChange={(e) => update("fieldNote3Alt", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={form.fieldNote3Index ?? ""} onChange={(e) => update("fieldNote3Index", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={form.fieldNote3Meta ?? ""} onChange={(e) => update("fieldNote3Meta", e.target.value)} /></label>
+              <label className="admin-field admin-field--full"><span className="admin-field__label">Légende</span><input className="admin-input" value={form.fieldNote3Caption ?? ""} onChange={(e) => update("fieldNote3Caption", e.target.value)} /></label>
+              <label className="admin-field"><span className="admin-field__label">Classe</span><input className="admin-input" value={form.fieldNote3Class ?? ""} onChange={(e) => update("fieldNote3Class", e.target.value)} placeholder="wide/medium/small" /></label>
+            </div>
+          </div>
         </div>
 
         <div className="admin-card">
