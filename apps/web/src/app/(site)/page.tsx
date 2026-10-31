@@ -47,7 +47,7 @@ export default async function HomePage() {
   const projectCount = projects.length.toString().padStart(2, "0");
   const experienceCount = experiences.length.toString().padStart(2, "0");
 
-  const fieldNotes = [
+  let fieldNotes = [
     {
       src: (profile as any).fieldNote1Src || defaultFieldNotes[0].src,
       alt: (profile as any).fieldNote1Alt || defaultFieldNotes[0].alt,
@@ -73,6 +73,19 @@ export default async function HomePage() {
       className: (profile as any).fieldNote3Class || defaultFieldNotes[2].className,
     },
   ];
+
+  if (Array.isArray((profile as any).fieldNotes) && (profile as any).fieldNotes.length > 0) {
+    fieldNotes = (profile as any).fieldNotes
+      .filter((n: any) => n && n.src)
+      .map((n: any, i: number) => ({
+        src: n.src,
+        alt: n.alt || "",
+        index: n.index || `FIG. ${String(i + 1).padStart(2, "0")}`,
+        meta: n.meta || "",
+        caption: n.caption || "",
+        className: n.className || (i === 0 ? "wide" : i === 1 ? "medium" : "small"),
+      }));
+  }
 
   return (
     <>
@@ -134,7 +147,12 @@ export default async function HomePage() {
             </a>
           </aside>
           <div className="hero__drawing">
-            <InteractiveHeroDrawing />
+            {(profile as any).heroImageSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={(profile as any).heroImageSrc} alt={(profile as any).heroImageAlt || ""} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            ) : (
+              <InteractiveHeroDrawing />
+            )}
           </div>
         </div>
       </section>

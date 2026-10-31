@@ -66,6 +66,9 @@ model Profile {
   fieldNote3Meta String?
   fieldNote3Caption String?
   fieldNote3Class String?
+  fieldNotes Json? @default("[]")
+  heroImageSrc String?
+  heroImageAlt String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

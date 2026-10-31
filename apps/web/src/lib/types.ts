@@ -52,6 +52,9 @@ export type Profile = {
   fieldNote3Meta: string | null;
   fieldNote3Caption: string | null;
   fieldNote3Class: string | null;
+  fieldNotes?: any;
+  heroImageSrc?: string | null;
+  heroImageAlt?: string | null;
   createdAt: string;
   updatedAt: string;
 };

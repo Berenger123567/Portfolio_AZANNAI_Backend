@@ -55,6 +55,9 @@ type ProfileForm = Pick<
   | "fieldNote3Meta"
   | "fieldNote3Caption"
   | "fieldNote3Class"
+  | "fieldNotes"
+  | "heroImageSrc"
+  | "heroImageAlt"
 >;
 
 const editableFields: (keyof ProfileForm)[] = [
@@ -102,6 +105,9 @@ const editableFields: (keyof ProfileForm)[] = [
   "fieldNote3Meta",
   "fieldNote3Caption",
   "fieldNote3Class",
+  "fieldNotes",
+  "heroImageSrc",
+  "heroImageAlt",
 ];
 
 function toForm(profile: Profile): ProfileForm {
@@ -142,6 +148,9 @@ function toForm(profile: Profile): ProfileForm {
   form.fieldNote3Meta = profile.fieldNote3Meta ?? "";
   form.fieldNote3Caption = profile.fieldNote3Caption ?? "";
   form.fieldNote3Class = profile.fieldNote3Class ?? "";
+  form.fieldNotes = (profile as any).fieldNotes ?? [];
+  form.heroImageSrc = (profile as any).heroImageSrc ?? "";
+  form.heroImageAlt = (profile as any).heroImageAlt ?? "";
   return form;
 }
 
@@ -155,11 +164,8 @@ export function ProfileEditor() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [uploadingFieldNote, setUploadingFieldNote] = useState<Record<1 | 2 | 3, boolean>>({
-    1: false,
-    2: false,
-    3: false,
-  });
+  const [uploadingFieldNote, setUploadingFieldNote] = useState<Record<number, boolean>>({});
+  const [uploadingHero, setUploadingHero] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -221,9 +227,30 @@ export function ProfileEditor() {
     setNotice("");
 
     try {
+      const payload = { ...(form as any) };
+      if (Array.isArray(payload.fieldNotes)) {
+        payload.fieldNote1Src = payload.fieldNotes[0]?.src || payload.fieldNote1Src || "";
+        payload.fieldNote1Alt = payload.fieldNotes[0]?.alt || payload.fieldNote1Alt || "";
+        payload.fieldNote1Index = payload.fieldNotes[0]?.index || payload.fieldNote1Index || "";
+        payload.fieldNote1Meta = payload.fieldNotes[0]?.meta || payload.fieldNote1Meta || "";
+        payload.fieldNote1Caption = payload.fieldNotes[0]?.caption || payload.fieldNote1Caption || "";
+        payload.fieldNote1Class = payload.fieldNotes[0]?.className || payload.fieldNote1Class || "";
+        payload.fieldNote2Src = payload.fieldNotes[1]?.src || payload.fieldNote2Src || "";
+        payload.fieldNote2Alt = payload.fieldNotes[1]?.alt || payload.fieldNote2Alt || "";
+        payload.fieldNote2Index = payload.fieldNotes[1]?.index || payload.fieldNote2Index || "";
+        payload.fieldNote2Meta = payload.fieldNotes[1]?.meta || payload.fieldNote2Meta || "";
+        payload.fieldNote2Caption = payload.fieldNotes[1]?.caption || payload.fieldNote2Caption || "";
+        payload.fieldNote2Class = payload.fieldNotes[1]?.className || payload.fieldNote2Class || "";
+        payload.fieldNote3Src = payload.fieldNotes[2]?.src || payload.fieldNote3Src || "";
+        payload.fieldNote3Alt = payload.fieldNotes[2]?.alt || payload.fieldNote3Alt || "";
+        payload.fieldNote3Index = payload.fieldNotes[2]?.index || payload.fieldNote3Index || "";
+        payload.fieldNote3Meta = payload.fieldNotes[2]?.meta || payload.fieldNote3Meta || "";
+        payload.fieldNote3Caption = payload.fieldNotes[2]?.caption || payload.fieldNote3Caption || "";
+        payload.fieldNote3Class = payload.fieldNotes[2]?.className || payload.fieldNote3Class || "";
+      }
       await adminRequest("/api/admin/profile", {
         method: "PUT",
-        body: form,
+        body: payload,
       });
       setNotice("Profil enregistré.");
       await load();
@@ -341,7 +368,25 @@ export function ProfileEditor() {
     );
   }
 
-  async function uploadFieldNote(event: React.ChangeEvent<HTMLInputElement>, index: 1 | 2 | 3) {
+  async function uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const uploadUrl = apiBase ? `${apiBase}/api/admin/uploads/avatar` : "/api/admin/uploads/avatar";
+    const res = await fetch(uploadUrl, {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+    if (!res.ok) {
+      const err = (await res.json().catch(() => ({}))) as { error?: string };
+      throw new Error(err.error ?? "Échec de l'envoi de l'image.");
+    }
+    const data = (await res.json()) as { file: { url: string; publicId: string } };
+    return data.file.url;
+  }
+
+  async function uploadFieldNote(event: React.ChangeEvent<HTMLInputElement>, index: number) {
     const file = event.target.files?.[0];
     event.target.value = "";
 
@@ -354,36 +399,48 @@ export function ProfileEditor() {
     setNotice("");
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
-      const uploadUrl = apiBase ? `${apiBase}/api/admin/uploads/avatar` : "/api/admin/uploads/avatar";
-      const res = await fetch(uploadUrl, {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const err = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(err.error ?? "Échec de l'envoi de l'image.");
-      }
-      const data = (await res.json()) as { file: { url: string; publicId: string } };
-
+      const url = await uploadImage(file);
       setForm((current) => {
         if (!current) return current;
-        if (index === 1) {
-          return { ...current, fieldNote1Src: data.file.url };
+        const list = Array.isArray((current as any).fieldNotes) ? [...(current as any).fieldNotes] : [];
+        if (!list[index]) {
+          list[index] = { src: url, alt: "", index: `FIG. ${String(index + 1).padStart(2, "0")}`, meta: "", caption: "", className: index === 0 ? "wide" : index === 1 ? "medium" : "small" };
+        } else {
+          list[index] = { ...list[index], src: url };
         }
-        if (index === 2) {
-          return { ...current, fieldNote2Src: data.file.url };
-        }
-        return { ...current, fieldNote3Src: data.file.url };
+        if (index === 0) return { ...current, fieldNote1Src: url, fieldNotes: list };
+        if (index === 1) return { ...current, fieldNote2Src: url, fieldNotes: list };
+        if (index === 2) return { ...current, fieldNote3Src: url, fieldNotes: list };
+        return { ...current, fieldNotes: list };
       });
       setNotice("Image envoyée. Enregistrez le profil pour appliquer le changement.");
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
       setUploadingFieldNote((prev) => ({ ...prev, [index]: false }));
+    }
+  }
+
+  async function uploadHeroImage(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    setUploadingHero(true);
+    setError("");
+    setNotice("");
+
+    try {
+      const url = await uploadImage(file);
+      setForm((current) => (current ? { ...current, heroImageSrc: url } : current));
+      setNotice("Image envoyée. Enregistrez le profil pour appliquer le changement.");
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setUploadingHero(false);
     }
   }
 
@@ -635,6 +692,26 @@ export function ProfileEditor() {
                 <textarea className="admin-textarea" rows={3} value={form.heroCopy ?? ""} onChange={(e) => update("heroCopy", e.target.value)} />
               </label>
             </div>
+            <div style={{ marginTop: "1rem" }}>
+              <p className="admin-field__label">Image PL-00 / Axonométrie (facultatif)</p>
+              {(form as any).heroImageSrc ? (
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={(form as any).heroImageSrc} alt={(form as any).heroImageAlt || ""} style={{ width: "160px", height: "100px", objectFit: "contain", border: "1px solid var(--rule)" }} />
+                  <button type="button" className="admin-button admin-button--danger" onClick={() => setForm((c) => c ? { ...c, heroImageSrc: "", heroImageAlt: "" } : c)}>Retirer</button>
+                </div>
+              ) : null}
+              <div className="admin-form__actions" style={{ marginTop: "0.5rem" }}>
+                <label className="admin-button admin-button--ghost">
+                  {uploadingHero ? "Envoi…" : "Téléverser une image"}
+                  <input type="file" accept="image/*" hidden onChange={uploadHeroImage} disabled={uploadingHero} />
+                </label>
+              </div>
+              <div className="admin-form__grid" style={{ marginTop: "0.75rem" }}>
+                <label className="admin-field admin-field--full"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={(form as any).heroImageSrc ?? ""} onChange={(e) => update("heroImageSrc" as any, e.target.value)} /></label>
+                <label className="admin-field admin-field--full"><span className="admin-field__label">Alt</span><input className="admin-input" value={(form as any).heroImageAlt ?? ""} onChange={(e) => update("heroImageAlt" as any, e.target.value)} /></label>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -663,6 +740,7 @@ export function ProfileEditor() {
         <div className="admin-card">
           <div className="admin-card__head">
             <h3 className="admin-card__title">Accueil - Registre terrain</h3>
+            <span className="admin-hint">Ajout/suppression illimitée. Enregistrez après modification.</span>
           </div>
           <div className="admin-card__body admin-form">
             <div className="admin-form__grid">
@@ -679,72 +757,87 @@ export function ProfileEditor() {
                 <textarea className="admin-textarea" rows={3} value={form.registerNote ?? ""} onChange={(e) => update("registerNote", e.target.value)} />
               </label>
             </div>
-            <h4 style={{ marginTop: "1rem" }}>Photo 1</h4>
-            {form.fieldNote1Src ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={form.fieldNote1Src} alt={form.fieldNote1Alt || ""} style={{ width: "120px", height: "80px", objectFit: "cover", border: "1px solid var(--rule)" }} />
-                <button type="button" className="admin-button admin-button--danger" onClick={() => setForm((c) => c ? { ...c, fieldNote1Src: "" } : c)}>Retirer</button>
-              </div>
-            ) : null}
-            <div className="admin-form__actions" style={{ marginBottom: "0.75rem" }}>
-              <label className="admin-button admin-button--ghost">
-                {uploadingFieldNote[1] ? "Envoi…" : "Téléverser une image"}
-                <input type="file" accept="image/*" hidden onChange={(e) => uploadFieldNote(e, 1)} disabled={uploadingFieldNote[1]} />
-              </label>
-            </div>
-            <div className="admin-form__grid">
-              <label className="admin-field admin-field--full"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote1Src ?? ""} onChange={(e) => update("fieldNote1Src", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={form.fieldNote1Alt ?? ""} onChange={(e) => update("fieldNote1Alt", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={form.fieldNote1Index ?? ""} onChange={(e) => update("fieldNote1Index", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={form.fieldNote1Meta ?? ""} onChange={(e) => update("fieldNote1Meta", e.target.value)} /></label>
-              <label className="admin-field admin-field--full"><span className="admin-field__label">Légende</span><input className="admin-input" value={form.fieldNote1Caption ?? ""} onChange={(e) => update("fieldNote1Caption", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Classe</span><input className="admin-input" value={form.fieldNote1Class ?? ""} onChange={(e) => update("fieldNote1Class", e.target.value)} placeholder="wide/medium/small" /></label>
-            </div>
-            <h4 style={{ marginTop: "1rem" }}>Photo 2</h4>
-            {form.fieldNote2Src ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={form.fieldNote2Src} alt={form.fieldNote2Alt || ""} style={{ width: "120px", height: "80px", objectFit: "cover", border: "1px solid var(--rule)" }} />
-                <button type="button" className="admin-button admin-button--danger" onClick={() => setForm((c) => c ? { ...c, fieldNote2Src: "" } : c)}>Retirer</button>
-              </div>
-            ) : null}
-            <div className="admin-form__actions" style={{ marginBottom: "0.75rem" }}>
-              <label className="admin-button admin-button--ghost">
-                {uploadingFieldNote[2] ? "Envoi…" : "Téléverser une image"}
-                <input type="file" accept="image/*" hidden onChange={(e) => uploadFieldNote(e, 2)} disabled={uploadingFieldNote[2]} />
-              </label>
-            </div>
-            <div className="admin-form__grid">
-              <label className="admin-field admin-field--full"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote2Src ?? ""} onChange={(e) => update("fieldNote2Src", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={form.fieldNote2Alt ?? ""} onChange={(e) => update("fieldNote2Alt", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={form.fieldNote2Index ?? ""} onChange={(e) => update("fieldNote2Index", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={form.fieldNote2Meta ?? ""} onChange={(e) => update("fieldNote2Meta", e.target.value)} /></label>
-              <label className="admin-field admin-field--full"><span className="admin-field__label">Légende</span><input className="admin-input" value={form.fieldNote2Caption ?? ""} onChange={(e) => update("fieldNote2Caption", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Classe</span><input className="admin-input" value={form.fieldNote2Class ?? ""} onChange={(e) => update("fieldNote2Class", e.target.value)} placeholder="wide/medium/small" /></label>
-            </div>
-            <h4 style={{ marginTop: "1rem" }}>Photo 3</h4>
-            {form.fieldNote3Src ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={form.fieldNote3Src} alt={form.fieldNote3Alt || ""} style={{ width: "120px", height: "80px", objectFit: "cover", border: "1px solid var(--rule)" }} />
-                <button type="button" className="admin-button admin-button--danger" onClick={() => setForm((c) => c ? { ...c, fieldNote3Src: "" } : c)}>Retirer</button>
-              </div>
-            ) : null}
-            <div className="admin-form__actions" style={{ marginBottom: "0.75rem" }}>
-              <label className="admin-button admin-button--ghost">
-                {uploadingFieldNote[3] ? "Envoi…" : "Téléverser une image"}
-                <input type="file" accept="image/*" hidden onChange={(e) => uploadFieldNote(e, 3)} disabled={uploadingFieldNote[3]} />
-              </label>
-            </div>
-            <div className="admin-form__grid">
-              <label className="admin-field admin-field--full"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote3Src ?? ""} onChange={(e) => update("fieldNote3Src", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={form.fieldNote3Alt ?? ""} onChange={(e) => update("fieldNote3Alt", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={form.fieldNote3Index ?? ""} onChange={(e) => update("fieldNote3Index", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={form.fieldNote3Meta ?? ""} onChange={(e) => update("fieldNote3Meta", e.target.value)} /></label>
-              <label className="admin-field admin-field--full"><span className="admin-field__label">Légende</span><input className="admin-input" value={form.fieldNote3Caption ?? ""} onChange={(e) => update("fieldNote3Caption", e.target.value)} /></label>
-              <label className="admin-field"><span className="admin-field__label">Classe</span><input className="admin-input" value={form.fieldNote3Class ?? ""} onChange={(e) => update("fieldNote3Class", e.target.value)} placeholder="wide/medium/small" /></label>
-            </div>
+            {(() => {
+              const list: any[] = Array.isArray((form as any).fieldNotes) ? [...(form as any).fieldNotes] : [];
+              if (list.length === 0) {
+                list.push({ src: form.fieldNote1Src || "", alt: form.fieldNote1Alt || "", index: form.fieldNote1Index || "FIG. 01", meta: form.fieldNote1Meta || "", caption: form.fieldNote1Caption || "", className: form.fieldNote1Class || "wide" });
+                list.push({ src: form.fieldNote2Src || "", alt: form.fieldNote2Alt || "", index: form.fieldNote2Index || "FIG. 02", meta: form.fieldNote2Meta || "", caption: form.fieldNote2Caption || "", className: form.fieldNote2Class || "medium" });
+                list.push({ src: form.fieldNote3Src || "", alt: form.fieldNote3Alt || "", index: form.fieldNote3Index || "FIG. 03", meta: form.fieldNote3Meta || "", caption: form.fieldNote3Caption || "", className: form.fieldNote3Class || "small" });
+              }
+              return (
+                <>
+                  {list.map((note, idx) => (
+                    <div key={idx} className="admin-card" style={{ marginTop: "1rem" }}>
+                      <div className="admin-card__head">
+                        <h4 className="admin-card__title">Photo {idx + 1}</h4>
+                        <button type="button" className="admin-button admin-button--danger" onClick={() => {
+                          const next = list.filter((_, i) => i !== idx);
+                          setForm((c) => c ? { ...c, fieldNotes: next } : c);
+                        }}>Supprimer</button>
+                      </div>
+                      <div className="admin-card__body admin-form">
+                        {note.src ? (
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={note.src} alt={note.alt || ""} style={{ width: "160px", height: "100px", objectFit: "cover", border: "1px solid var(--rule)" }} />
+                            <button type="button" className="admin-button admin-button--ghost" onClick={() => {
+                              const next = [...list];
+                              next[idx] = { ...next[idx], src: "" };
+                              setForm((c) => c ? { ...c, fieldNotes: next } : c);
+                            }}>Retirer l'image</button>
+                          </div>
+                        ) : null}
+                        <div className="admin-form__actions" style={{ marginBottom: "0.75rem" }}>
+                          <label className="admin-button admin-button--ghost">
+                            {uploadingFieldNote[idx] ? "Envoi…" : "Téléverser une image"}
+                            <input type="file" accept="image/*" hidden onChange={(e) => uploadFieldNote(e, idx)} disabled={uploadingFieldNote[idx]} />
+                          </label>
+                        </div>
+                        <div className="admin-form__grid">
+                          <label className="admin-field admin-field--full"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={note.src || ""} onChange={(e) => {
+                            const next = [...list];
+                            next[idx] = { ...next[idx], src: e.target.value };
+                            setForm((c) => c ? { ...c, fieldNotes: next } : c);
+                          }} /></label>
+                          <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={note.alt || ""} onChange={(e) => {
+                            const next = [...list];
+                            next[idx] = { ...next[idx], alt: e.target.value };
+                            setForm((c) => c ? { ...c, fieldNotes: next } : c);
+                          }} /></label>
+                          <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={note.index || ""} onChange={(e) => {
+                            const next = [...list];
+                            next[idx] = { ...next[idx], index: e.target.value };
+                            setForm((c) => c ? { ...c, fieldNotes: next } : c);
+                          }} placeholder="FIG. 01" /></label>
+                          <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={note.meta || ""} onChange={(e) => {
+                            const next = [...list];
+                            next[idx] = { ...next[idx], meta: e.target.value };
+                            setForm((c) => c ? { ...c, fieldNotes: next } : c);
+                          }} /></label>
+                          <label className="admin-field admin-field--full"><span className="admin-field__label">Légende</span><input className="admin-input" value={note.caption || ""} onChange={(e) => {
+                            const next = [...list];
+                            next[idx] = { ...next[idx], caption: e.target.value };
+                            setForm((c) => c ? { ...c, fieldNotes: next } : c);
+                          }} /></label>
+                          <label className="admin-field"><span className="admin-field__label">Classe</span><input className="admin-input" value={note.className || ""} onChange={(e) => {
+                            const next = [...list];
+                            next[idx] = { ...next[idx], className: e.target.value };
+                            setForm((c) => c ? { ...c, fieldNotes: next } : c);
+                          }} placeholder="wide/medium/small" /></label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="admin-form__actions" style={{ marginTop: "1rem" }}>
+                    <button type="button" className="admin-button admin-button--ghost" onClick={() => {
+                      const next = [...list];
+                      next.push({ src: "", alt: "", index: `FIG. ${String(next.length + 1).padStart(2, "0")}`, meta: "", caption: "", className: "small" });
+                      setForm((c) => c ? { ...c, fieldNotes: next } : c);
+                    }}>+ Ajouter une photo</button>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
 

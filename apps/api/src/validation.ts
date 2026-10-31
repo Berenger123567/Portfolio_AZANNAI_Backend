@@ -69,6 +69,9 @@ export const profileSchema = z.object({
   fieldNote3Meta: z.string().trim().max(200).nullable().optional(),
   fieldNote3Caption: z.string().trim().max(500).nullable().optional(),
   fieldNote3Class: z.string().trim().max(50).nullable().optional(),
+  fieldNotes: z.any().nullish(),
+  heroImageSrc: z.string().trim().max(2048).nullable().optional(),
+  heroImageAlt: z.string().trim().max(500).nullable().optional(),
 });
 
 export const educationSchema = z.object({
