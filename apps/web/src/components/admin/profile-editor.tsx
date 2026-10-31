@@ -155,6 +155,11 @@ export function ProfileEditor() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingFieldNote, setUploadingFieldNote] = useState<Record<1 | 2 | 3, boolean>>({
+    1: false,
+    2: false,
+    3: false,
+  });
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -334,6 +339,52 @@ export function ProfileEditor() {
     setNotice(
       "La photo de profil sera retirée du site après l’enregistrement du profil.",
     );
+  }
+
+  async function uploadFieldNote(event: React.ChangeEvent<HTMLInputElement>, index: 1 | 2 | 3) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    setUploadingFieldNote((prev) => ({ ...prev, [index]: true }));
+    setError("");
+    setNotice("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+      const uploadUrl = apiBase ? `${apiBase}/api/admin/uploads/avatar` : "/api/admin/uploads/avatar";
+      const res = await fetch(uploadUrl, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(err.error ?? "Échec de l'envoi de l'image.");
+      }
+      const data = (await res.json()) as { file: { url: string; publicId: string } };
+
+      setForm((current) => {
+        if (!current) return current;
+        if (index === 1) {
+          return { ...current, fieldNote1Src: data.file.url };
+        }
+        if (index === 2) {
+          return { ...current, fieldNote2Src: data.file.url };
+        }
+        return { ...current, fieldNote3Src: data.file.url };
+      });
+      setNotice("Image envoyée. Enregistrez le profil pour appliquer le changement.");
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setUploadingFieldNote((prev) => ({ ...prev, [index]: false }));
+    }
   }
 
   if (loading) {
@@ -629,8 +680,21 @@ export function ProfileEditor() {
               </label>
             </div>
             <h4 style={{ marginTop: "1rem" }}>Photo 1</h4>
+            {form.fieldNote1Src ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={form.fieldNote1Src} alt={form.fieldNote1Alt || ""} style={{ width: "120px", height: "80px", objectFit: "cover", border: "1px solid var(--rule)" }} />
+                <button type="button" className="admin-button admin-button--danger" onClick={() => setForm((c) => c ? { ...c, fieldNote1Src: "" } : c)}>Retirer</button>
+              </div>
+            ) : null}
+            <div className="admin-form__actions" style={{ marginBottom: "0.75rem" }}>
+              <label className="admin-button admin-button--ghost">
+                {uploadingFieldNote[1] ? "Envoi…" : "Téléverser une image"}
+                <input type="file" accept="image/*" hidden onChange={(e) => uploadFieldNote(e, 1)} disabled={uploadingFieldNote[1]} />
+              </label>
+            </div>
             <div className="admin-form__grid">
-              <label className="admin-field"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote1Src ?? ""} onChange={(e) => update("fieldNote1Src", e.target.value)} /></label>
+              <label className="admin-field admin-field--full"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote1Src ?? ""} onChange={(e) => update("fieldNote1Src", e.target.value)} /></label>
               <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={form.fieldNote1Alt ?? ""} onChange={(e) => update("fieldNote1Alt", e.target.value)} /></label>
               <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={form.fieldNote1Index ?? ""} onChange={(e) => update("fieldNote1Index", e.target.value)} /></label>
               <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={form.fieldNote1Meta ?? ""} onChange={(e) => update("fieldNote1Meta", e.target.value)} /></label>
@@ -638,8 +702,21 @@ export function ProfileEditor() {
               <label className="admin-field"><span className="admin-field__label">Classe</span><input className="admin-input" value={form.fieldNote1Class ?? ""} onChange={(e) => update("fieldNote1Class", e.target.value)} placeholder="wide/medium/small" /></label>
             </div>
             <h4 style={{ marginTop: "1rem" }}>Photo 2</h4>
+            {form.fieldNote2Src ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={form.fieldNote2Src} alt={form.fieldNote2Alt || ""} style={{ width: "120px", height: "80px", objectFit: "cover", border: "1px solid var(--rule)" }} />
+                <button type="button" className="admin-button admin-button--danger" onClick={() => setForm((c) => c ? { ...c, fieldNote2Src: "" } : c)}>Retirer</button>
+              </div>
+            ) : null}
+            <div className="admin-form__actions" style={{ marginBottom: "0.75rem" }}>
+              <label className="admin-button admin-button--ghost">
+                {uploadingFieldNote[2] ? "Envoi…" : "Téléverser une image"}
+                <input type="file" accept="image/*" hidden onChange={(e) => uploadFieldNote(e, 2)} disabled={uploadingFieldNote[2]} />
+              </label>
+            </div>
             <div className="admin-form__grid">
-              <label className="admin-field"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote2Src ?? ""} onChange={(e) => update("fieldNote2Src", e.target.value)} /></label>
+              <label className="admin-field admin-field--full"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote2Src ?? ""} onChange={(e) => update("fieldNote2Src", e.target.value)} /></label>
               <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={form.fieldNote2Alt ?? ""} onChange={(e) => update("fieldNote2Alt", e.target.value)} /></label>
               <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={form.fieldNote2Index ?? ""} onChange={(e) => update("fieldNote2Index", e.target.value)} /></label>
               <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={form.fieldNote2Meta ?? ""} onChange={(e) => update("fieldNote2Meta", e.target.value)} /></label>
@@ -647,8 +724,21 @@ export function ProfileEditor() {
               <label className="admin-field"><span className="admin-field__label">Classe</span><input className="admin-input" value={form.fieldNote2Class ?? ""} onChange={(e) => update("fieldNote2Class", e.target.value)} placeholder="wide/medium/small" /></label>
             </div>
             <h4 style={{ marginTop: "1rem" }}>Photo 3</h4>
+            {form.fieldNote3Src ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={form.fieldNote3Src} alt={form.fieldNote3Alt || ""} style={{ width: "120px", height: "80px", objectFit: "cover", border: "1px solid var(--rule)" }} />
+                <button type="button" className="admin-button admin-button--danger" onClick={() => setForm((c) => c ? { ...c, fieldNote3Src: "" } : c)}>Retirer</button>
+              </div>
+            ) : null}
+            <div className="admin-form__actions" style={{ marginBottom: "0.75rem" }}>
+              <label className="admin-button admin-button--ghost">
+                {uploadingFieldNote[3] ? "Envoi…" : "Téléverser une image"}
+                <input type="file" accept="image/*" hidden onChange={(e) => uploadFieldNote(e, 3)} disabled={uploadingFieldNote[3]} />
+              </label>
+            </div>
             <div className="admin-form__grid">
-              <label className="admin-field"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote3Src ?? ""} onChange={(e) => update("fieldNote3Src", e.target.value)} /></label>
+              <label className="admin-field admin-field--full"><span className="admin-field__label">Image (URL)</span><input className="admin-input" value={form.fieldNote3Src ?? ""} onChange={(e) => update("fieldNote3Src", e.target.value)} /></label>
               <label className="admin-field"><span className="admin-field__label">Alt</span><input className="admin-input" value={form.fieldNote3Alt ?? ""} onChange={(e) => update("fieldNote3Alt", e.target.value)} /></label>
               <label className="admin-field"><span className="admin-field__label">Index</span><input className="admin-input" value={form.fieldNote3Index ?? ""} onChange={(e) => update("fieldNote3Index", e.target.value)} /></label>
               <label className="admin-field"><span className="admin-field__label">Meta</span><input className="admin-input" value={form.fieldNote3Meta ?? ""} onChange={(e) => update("fieldNote3Meta", e.target.value)} /></label>
